@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <!-- CSS only -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <!-- JavaScript Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+    <title>Popis Obaveza</title>
+  </head>
+  <body>
+    
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="#">Todo Aplikacija</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+          aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <li class="nav-item">
+              <a class="nav-link active" aria-current="page" href="{{url_for('home')}}">Home</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{{url_for('dodaj_obavezu')}}">Dodaj Obavezu</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{{url_for('vrati_obaveze')}}">Popis Obaveza</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container mt-4">
+        <h2>Popis Obaveza</h2>
+        <ul class="list-group">
+          {% for obaveza in data %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              <div>
+                <strong>{{ obaveza.naziv }}</strong> 
+                <br>
+                <small>
+                    Kategorija: {{ obaveza.kategorija }} <br>
+                    Detalji: {{ obaveza.detalji }} <br>
+                    Rok: {% if obaveza.rok %} {{ obaveza.rok.strftime('%d-%m-%Y %H:%M') }} {% else %} None {% endif %}
+                </small>
+              </div>
+              <div>
+                <a href="{{ url_for('izmjeni_obavezu', obaveza_id=obaveza.id) }}" class="btn btn-primary btn-sm">Uredi</a>
+                <button class="btn btn-danger btn-sm" onclick="obrisiObavezu('{{ obaveza.id }}')">Obriši</button>
+            </div>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+      
+      <script>
+        function obrisiObavezu(obavezaId) {
+          if (confirm('Jeste li sigurni da želite obrisati ovu obavezu?')) {
+            fetch(`/obaveza/${obavezaId}`, { method: 'DELETE' })
+              .then(response => response.json())
+              .then(data => {
+                if (data.response === 'Success') {
+                  location.reload();
+                } else {
+                  console.error('Došlo je do greške prilikom brisanja obaveze:', data.error);
+                }
+              })
+              .catch(error => console.error('Došlo je do greške prilikom izvršavanja DELETE zahteva:', error));
+          }
+        }
+
+        </script>
+      
+
+  </body>
+
+  <style>
+    body {
+       background-image: url('{{ url_for("static", filename="pozadina.jpg") }}');
+   }
+  </style>
+
+</html>
